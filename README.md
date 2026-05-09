@@ -1,5 +1,5 @@
 # mchose-Keyboard-Fix-for-linux-wake-up-for-3.0-port-only-
-exactly what the title says....this is for the turbo and GT series.. it will allow you to use the online hub (given you give your chromimum based browser permissions to see them)  but the extra fetaures like rappy aree still being worked on.. this is jsut a wake script that will survive reboot and power offs..this shgould work for any keyboard on  linux suffering from reconigtion due to "powerdraw"
+exactly what the title says....this is for the turbo and GT series.. it will allow you to use the online hub (given you give your chromimum based browser permissions to see them)  but the extra fetaures like rappy are still being worked on.. this is just a wake script that will survive reboot and power offs..this should work for any keyboard on linux suffering from reconigtion due to "powerdraw"
 
 
 Create the new wake script:
