@@ -1,0 +1,75 @@
+sudo nano  /usr/local/bin/mchose-usb-wake-universal 
+
+
+#!/usr/bin/env bash
+set -u
+
+MCHOSE_VENDOR="3837"
+
+# Known MCHOSE 16K/USB3 product IDs from EnhanceHidUSB.INF
+KNOWN_PRODUCTS="3007 3026 300c 300f 301a 301b 301c 301d 301f 3020 302d 302f 3030 3031 3032 3034 3035 3036 3037 3038 3039 303a"
+
+for d in /sys/bus/usb/devices/*; do
+  [ -f "$d/idVendor" ] || continue
+  [ -f "$d/idProduct" ] || continue
+
+  vid="$(tr 'A-F' 'a-f' < "$d/idVendor")"
+  pid="$(tr 'A-F' 'a-f' < "$d/idProduct")"
+
+  [ "$vid" = "$MCHOSE_VENDOR" ] || continue
+
+  case " $KNOWN_PRODUCTS " in
+    *" $pid "*) ;;
+    *) echo "Skipping MCHOSE-like unknown PID $pid at $d"; continue ;;
+  esac
+
+  echo "Found MCHOSE device VID:$vid PID:$pid at $d"
+  echo 1 > "$d/bConfigurationValue" 2>/dev/null || true
+  sleep 1
+  echo 1 > "$d/bConfigurationValue" 2>/dev/null || true
+  echo "Forced config 1 for $d"
+done
+
+
+
+then:
+
+
+chmod +x /usr/local/bin/mchose-usb-wake-universal
+/usr/local/bin/mchose-usb-wake-universal
+
+
+
+then:
+
+
+sudo nano /etc/systemd/system/mchose-usb-wake-universal.service 
+
+[Unit]
+Description=Wake MCHOSE USB3/HID devices
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/local/bin/mchose-usb-wake-universal
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+then:
+
+
+
+sudo nano /etc/udev/rules.d/99-mchose-usb-wake-universal.rules 
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="3837", TAG+="systemd", ENV{SYSTEMD_WANTS}="mchose-usb-wake-universal.service"
+
+
+systemctl daemon-reload
+udevadm control --reload-rules
+systemctl enable --now mchose-usb-wake-universal.service
+
+
+This also should be safer than using "all 3837 devices"  because it only wakes known MCHOSE USB3 PIDs.
