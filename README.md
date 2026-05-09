@@ -4,7 +4,10 @@ exactly what the title says....this is for the turbo and GT series.. it will all
 
 Create the new wake script:
 
+
 sudo nano /usr/local/bin/mchose-usb-wake 
+
+
 
 #!/usr/bin/env bash
 set -u
@@ -22,13 +25,28 @@ for d in /sys/bus/usb/devices/*; do
   fi
 done
 
+
+
+
+
 Then run this:
+
+
+
 
 chmod +x /usr/local/bin/mchose-usb-wake
 
+
+
+
 Create the new service:
 
+
+
 sudo nano /etc/systemd/system/mchose-usb-wake.service 
+
+
+
 
 [Unit]
 Description=Wake MCHOSE Ace 68 GT USB config
@@ -43,13 +61,24 @@ ExecStart=/usr/local/bin/mchose-usb-wake
 WantedBy=multi-user.target
 
 
+
+
 Create the new udev rule:
 
+
+
+
 sudo nano  /etc/udev/rules.d/99-mchose-usb-wake.rules
+
+
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="3837", ATTR{idProduct}=="3007", TAG+="systemd", ENV{SYSTEMD_WANTS}="mchose-usb-wake.service"
-EOF
+
+
+
 
 Enable and test:
+
+
 
 systemctl daemon-reload
 udevadm control --reload-rules
@@ -57,9 +86,14 @@ systemctl enable mchose-usb-wake.service
 systemctl start mchose-usb-wake.service
 lsusb -t
 
+
+
 Then check logs:
 
+
 journalctl -u mchose-usb-wake.service -b --no-pager
+
+
 
 reboot
 
